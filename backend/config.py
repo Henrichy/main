@@ -9,10 +9,15 @@ class AppConfig:
     app_env: str
     cors_origins: list[str]
     max_content_length: int
+    max_video_bytes: int
+    max_json_bytes: int
     max_metadata_bytes: int
     expose_metadata_header: bool
     noir_worker_enabled: bool
     security_headers_enabled: bool
+    metrics_enabled: bool
+    metrics_token: str | None
+    metrics_path: str
 
 
 def load_config() -> AppConfig:
@@ -24,11 +29,16 @@ def load_config() -> AppConfig:
     return AppConfig(
         app_env=app_env,
         cors_origins=cors_origins,
-        max_content_length=_int_env("MAX_CONTENT_LENGTH", 262_144_000),
+        max_content_length=_int_env("MAX_CONTENT_LENGTH", 314_572_800),
+        max_video_bytes=_int_env("MAX_VIDEO_BYTES", 262_144_000),
+        max_json_bytes=_int_env("MAX_JSON_BYTES", 1_048_576),
         max_metadata_bytes=_int_env("MAX_METADATA_BYTES", 16_384),
         expose_metadata_header=_bool_env("EXPOSE_METADATA_HEADER", False),
         noir_worker_enabled=_bool_env("NOIR_WORKER_ENABLED", app_env != "production"),
         security_headers_enabled=_bool_env("SECURITY_HEADERS_ENABLED", True),
+        metrics_enabled=_bool_env("METRICS_ENABLED", True),
+        metrics_token=_str_env("METRICS_TOKEN"),
+        metrics_path=os.getenv("METRICS_PATH", "/metrics").strip(),
     )
 
 
@@ -52,3 +62,11 @@ def _bool_env(name: str, default: bool) -> bool:
     if value is None:
         return default
     return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _str_env(name: str) -> str | None:
+    value = os.getenv(name)
+    if value is None or not value.strip():
+        return None
+    return value.strip()
+
