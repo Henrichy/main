@@ -724,5 +724,6 @@ fn verify_demo_zk_boundary(proof: &Bytes, credential_root: &BytesN<32>) -> bool 
 
 mod test;
 mod test_auth;
+mod test_budget;
 mod test_invariants;
 mod test_expiry;
